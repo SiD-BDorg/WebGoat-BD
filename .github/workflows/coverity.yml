@@ -1,15 +1,15 @@
 name: Coverity Scan
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
-      - master
+
+  workflow_dispatch:
 
 jobs:
   coverity:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Source
