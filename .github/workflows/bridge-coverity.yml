@@ -1,0 +1,40 @@
+name: Bridge CLI Coverity
+
+on:
+  workflow_dispatch:
+
+jobs:
+  coverity:
+    runs-on: windows-latest
+
+    steps:
+
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Download Bridge CLI
+        shell: powershell
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-win64.zip" `
+            -OutFile bridge.zip
+
+          Expand-Archive bridge.zip -DestinationPath bridge
+
+      - name: Run Bridge CLI
+        shell: powershell
+        env:
+          COVERITY_URL: ${{ vars.COVERITY_URL }}
+          COVERITY_USER: ${{ secrets.COVERITY_USER }}
+          COVERITY_PASSPHRASE: ${{ secrets.COVERITY_PASSPHRASE }}
+
+        run: |
+          bridge\bridge-cli.bat `
+            --stage coverity `
+            coverity.connect.url=$env:COVERITY_URL `
+            coverity.connect.user.name=$env:COVERITY_USER `
+            coverity.connect.user.password=$env:COVERITY_PASSPHRASE `
+            coverity.connect.project.name=WebGoat-BDCLI `
+            coverity.connect.stream.name=WebGoat-BDCLI-main `
+            coverity.build.command="mvn package -DskipTests" `
+            coverity.clean.command="mvn clean"
