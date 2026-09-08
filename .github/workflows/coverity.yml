@@ -1,4 +1,4 @@
-name: Coverity Scan 1
+name: Bridge Coverity Scan
 
 on:
   push:
