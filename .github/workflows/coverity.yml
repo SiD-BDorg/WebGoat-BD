@@ -1,4 +1,4 @@
-name: Bridge Coverity Scannn
+name: Bridge Coverity Scannnn
 
 on:
   push:
@@ -19,13 +19,11 @@ jobs:
           unzip -q bridge.zip
           chmod +x bridge-cli-bundle-linux64/bridge-cli
 
-      - name: Trust Coverity Certificate
+      - name: Install Coverity Certificate
+        shell: bash
         run: |
-          cat > coverity.pem << 'EOF'
-${{ secrets.COVERITY_CERT }}
-EOF
-
-          sudo cp coverity.pem /usr/local/share/ca-certificates/coverity.crt
+          echo "${{ secrets.COVERITY_CERT }}" > /tmp/coverity.crt
+          sudo cp /tmp/coverity.crt /usr/local/share/ca-certificates/coverity.crt
           sudo update-ca-certificates
 
       - name: Run Coverity Scan
@@ -33,9 +31,7 @@ EOF
           BRIDGE_COVERITY_CONNECT_URL: ${{ secrets.BRIDGE_COVERITY_CONNECT_URL }}
           BRIDGE_COVERITY_CONNECT_USER_NAME: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_NAME }}
           BRIDGE_COVERITY_CONNECT_USER_PASSWORD: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_PASSWORD }}
-
           BRIDGE_COVERITY_CONNECT_PROJECT_NAME: WebGoat-GitHub
           BRIDGE_COVERITY_CONNECT_STREAM_NAME: WebGoat-GitHub-main
-
         run: |
           ./bridge-cli-bundle-linux64/bridge-cli --stage connect
