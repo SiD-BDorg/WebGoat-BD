@@ -1,4 +1,4 @@
-name: Coverity Scan
+name: Coverity Scan 1
 
 on:
   push:
