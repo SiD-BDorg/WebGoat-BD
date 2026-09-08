@@ -1,4 +1,4 @@
-name: Bridge Coverity Scan
+name: Bridge Coverity Scan 1
 
 on:
   push:
@@ -27,7 +27,6 @@ jobs:
 
           BRIDGE_COVERITY_CONNECT_PROJECT_NAME: WebGoat-GitHub
           BRIDGE_COVERITY_CONNECT_STREAM_NAME: WebGoat-GitHub-main
-          BRIDGE_COVERITY_CONNECT_INSECURE: true
 
         run: |
           ./bridge-cli-bundle-linux64/bridge-cli --stage connect
