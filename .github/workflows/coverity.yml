@@ -1,0 +1,32 @@
+name: Coverity Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  coverity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Bridge CLI
+        run: |
+          curl -fLsS -o bridge.zip https://repo.blackduck.com/artifactory/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-linux64.zip
+          unzip -q bridge.zip
+          chmod +x bridge-cli-bundle-linux64/bridge-cli
+
+      - name: Run Coverity Scan
+        env:
+          BRIDGE_COVERITY_CONNECT_URL: ${{ secrets.BRIDGE_COVERITY_CONNECT_URL }}
+          BRIDGE_COVERITY_CONNECT_USER_NAME: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_NAME }}
+          BRIDGE_COVERITY_CONNECT_USER_PASSWORD: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_PASSWORD }}
+
+          BRIDGE_COVERITY_CONNECT_PROJECT_NAME: WebGoat-GitHub
+          BRIDGE_COVERITY_CONNECT_STREAM_NAME: WebGoat-GitHub-main
+
+        run: |
+          ./bridge-cli-bundle-linux64/bridge-cli --stage connect
