@@ -1,4 +1,4 @@
-name: Bridge Coverity Scan Final scan ?
+name: Bridge Coverity Scannn
 
 on:
   push:
@@ -18,6 +18,15 @@ jobs:
           curl -fLsS -o bridge.zip https://repo.blackduck.com/artifactory/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-linux64.zip
           unzip -q bridge.zip
           chmod +x bridge-cli-bundle-linux64/bridge-cli
+
+      - name: Trust Coverity Certificate
+        run: |
+          cat > coverity.pem << 'EOF'
+${{ secrets.COVERITY_CERT }}
+EOF
+
+          sudo cp coverity.pem /usr/local/share/ca-certificates/coverity.crt
+          sudo update-ca-certificates
 
       - name: Run Coverity Scan
         env:
