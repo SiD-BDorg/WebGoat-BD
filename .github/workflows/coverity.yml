@@ -1,4 +1,4 @@
-name: Coverity Bridge CLI Scaning 150
+name: Coverity Bridge CLI Scanning
 
 on:
   push:
@@ -20,6 +20,7 @@ jobs:
       BRIDGE_COVERITY_CONNECT_USER_PASSWORD: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_PASSWORD }}
 
       BRIDGE_COVERITY_LOCAL: "true"
+
       BRIDGE_COVERITY_BUILD_COMMAND: "./mvnw -B -DskipTests package"
       BRIDGE_COVERITY_CLEAN_COMMAND: "./mvnw -B clean"
 
@@ -39,7 +40,6 @@ jobs:
           cache: maven
 
       - name: Make Maven wrapper executable
-        shell: bash
         run: chmod +x ./mvnw
 
       - name: Install Coverity certificate
@@ -47,44 +47,17 @@ jobs:
         env:
           COVERITY_CERT: ${{ secrets.COVERITY_CERT }}
         run: |
-          printf '%s\n' "$COVERITY_CERT" | sed 's/\r$//' \
-            | sudo tee /usr/local/share/ca-certificates/coverity.crt > /dev/null
-
+          printf '%s\n' "$COVERITY_CERT" > /tmp/coverity.crt
+          sudo cp /tmp/coverity.crt /usr/local/share/ca-certificates/coverity.crt
           sudo update-ca-certificates
 
-          echo "Certificate information:"
-          openssl x509 \
-            -in /usr/local/share/ca-certificates/coverity.crt \
-            -noout \
-            -subject \
-            -issuer \
-            -dates
-
-      - name: Test Coverity connectivity
-        shell: bash
-        run: |
-          curl \
-            --fail \
-            --silent \
-            --show-error \
-            --head \
-            --connect-timeout 20 \
-            "${BRIDGE_COVERITY_CONNECT_URL}/"
-
       - name: Download Bridge CLI
-        shell: bash
         run: |
-          curl -fLsS \
-            -o bridge.zip \
-            "https://repo.blackduck.com/artifactory/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-linux64.zip"
-
+          curl -fLsS -o bridge.zip "https://repo.blackduck.com/artifactory/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-linux64.zip"
           unzip -qo bridge.zip -d "${RUNNER_TEMP}"
           chmod +x "${RUNNER_TEMP}/bridge-cli-bundle-linux64/bridge-cli"
 
-          "${RUNNER_TEMP}/bridge-cli-bundle-linux64/bridge-cli" --version || true
-
       - name: Run Coverity full scan
-        shell: bash
         run: |
           "${RUNNER_TEMP}/bridge-cli-bundle-linux64/bridge-cli" \
             --stage connect \
@@ -95,7 +68,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverity-bridge-logs
+          name: bridge-logs
           path: |
             .bridge
             ~/.bridge
