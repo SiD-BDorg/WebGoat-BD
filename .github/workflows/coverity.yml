@@ -1,4 +1,4 @@
-name: Coverity Bridge CLI Scaning 15
+name: Coverity Bridge CLI Scaning 150
 
 on:
   push:
