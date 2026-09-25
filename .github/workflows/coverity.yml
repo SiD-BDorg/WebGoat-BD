@@ -1,10 +1,10 @@
-name: Coverity Bridge CLI Scan 22.3
+name: Coverity Scan 22.34
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - master
-  workflow_dispatch:
+      - main
 
 jobs:
   coverity:
@@ -15,43 +15,29 @@ jobs:
       BRIDGE_COVERITY_CONNECT_USER_NAME: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_NAME }}
       BRIDGE_COVERITY_CONNECT_USER_PASSWORD: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_PASSWORD }}
 
-      BRIDGE_COVERITY_LOCAL: "true"
-
-      BRIDGE_COVERITY_BUILD_COMMAND: "mvn clean package -DskipTests"
-      BRIDGE_COVERITY_CLEAN_COMMAND: "mvn clean"
+      BRIDGE_COVERITY_BUILD_COMMAND: "./mvnw -e -X clean package -DskipTests"
 
     steps:
-      - name: Checkout Source
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: 17
 
-      - name: Install Coverity Certificate
-        env:
-          COVERITY_CERT: ${{ secrets.COVERITY_CERT }}
-        run: |
-          echo "$COVERITY_CERT" | sudo tee /usr/local/share/ca-certificates/coverity.crt
-          sudo update-ca-certificates
+      - name: Make Maven executable
+        run: chmod +x mvnw
 
-      - name: Download Bridge CLI
+      - name: Download Bridge
         run: |
           curl -fLsS -o bridge.zip "https://repo.blackduck.com/artifactory/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-linux64.zip"
-          unzip -qo bridge.zip -d $RUNNER_TEMP
+          unzip -qo bridge.zip
 
       - name: Run Coverity Scan
         run: |
-          $RUNNER_TEMP/bridge-cli-bundle-linux64/bridge-cli \
+          ./bridge-cli-bundle-linux64/bridge-cli \
             --stage connect \
-            coverity.connect.project.name="coveritytest" \
-            coverity.connect.stream.name="coveritytest-master"
-
-      - name: Upload Logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bridge-logs
-          path: .bridge
+            coverity.connect.project.name="WebGoat-GitHub252" \
+            coverity.connect.stream.name="WebGoat-Github-main252"
