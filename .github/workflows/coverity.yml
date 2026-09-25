@@ -1,4 +1,4 @@
-name: Coverity Bridge CLI Scanning
+name: Coverity Scan 22
 
 on:
   push:
@@ -6,12 +6,8 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
-  coverity:
-    name: Coverity Full Scan
+  scan:
     runs-on: ubuntu-latest
 
     env:
@@ -20,57 +16,24 @@ jobs:
       BRIDGE_COVERITY_CONNECT_USER_PASSWORD: ${{ secrets.BRIDGE_COVERITY_CONNECT_USER_PASSWORD }}
 
       BRIDGE_COVERITY_LOCAL: "true"
-
-      BRIDGE_COVERITY_BUILD_COMMAND: "./mvnw -B -DskipTests package"
-      BRIDGE_COVERITY_CLEAN_COMMAND: "./mvnw -B clean"
-
-      BRIDGE_GITHUB_REPOSITORY_OWNER_NAME: ${{ github.repository_owner }}
-      BRIDGE_GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
-      BRIDGE_GITHUB_REPOSITORY_BRANCH_NAME: ${{ github.ref_name }}
+      BRIDGE_COVERITY_BUILD_COMMAND: "./mvnw clean package"
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
-          cache: maven
+          java-version: 17
 
-      - name: Make Maven wrapper executable
-        run: chmod +x ./mvnw
+      - run: chmod +x mvnw
 
-      - name: Install Coverity certificate
-        shell: bash
-        env:
-          COVERITY_CERT: ${{ secrets.COVERITY_CERT }}
-        run: |
-          printf '%s\n' "$COVERITY_CERT" > /tmp/coverity.crt
-          sudo cp /tmp/coverity.crt /usr/local/share/ca-certificates/coverity.crt
-          sudo update-ca-certificates
-
-      - name: Download Bridge CLI
-        run: |
+      - run: |
           curl -fLsS -o bridge.zip "https://repo.blackduck.com/artifactory/bds-integrations-release/com/blackduck/integration/bridge/binaries/bridge-cli-bundle/latest/bridge-cli-bundle-linux64.zip"
-          unzip -qo bridge.zip -d "${RUNNER_TEMP}"
-          chmod +x "${RUNNER_TEMP}/bridge-cli-bundle-linux64/bridge-cli"
+          unzip -qo bridge.zip
 
-      - name: Run Coverity full scan
-        run: |
-          "${RUNNER_TEMP}/bridge-cli-bundle-linux64/bridge-cli" \
+      - run: |
+          ./bridge-cli-bundle-linux64/bridge-cli \
             --stage connect \
-            coverity.connect.project.name="WebGoat-GitHub" \
-            coverity.connect.stream.name="WebGoat-GitHub-main"
-
-      - name: Upload Bridge diagnostic logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: bridge-logs
-          path: |
-            .bridge
-            ~/.bridge
-          include-hidden-files: true
-          if-no-files-found: ignore
+            coverity.connect.project.name="WebGoat-GitHub25" \
+            coverity.connect.stream.name="WebGoat-GitHub-main25"
