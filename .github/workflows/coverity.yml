@@ -1,4 +1,4 @@
-name: Coverity Scan 22.1
+name: Coverity Scan 22.2
 
 on:
   push:
