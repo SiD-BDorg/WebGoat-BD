@@ -39,5 +39,5 @@ jobs:
         run: |
           ./bridge-cli-bundle-linux64/bridge-cli \
             --stage connect \
-            coverity.connect.project.name="WebGoat-GitHub252" \
-            coverity.connect.stream.name="WebGoat-Github-main252"
+            coverity.connect.project.name="WebGoat-GitHubDemo3" \
+            coverity.connect.stream.name="WebGoat-GithubDemo3main"
