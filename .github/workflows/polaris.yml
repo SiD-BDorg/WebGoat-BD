@@ -1,0 +1,28 @@
+name: Polaris Scan
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  polaris:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Polaris Scan
+        uses: blackduck-inc/black-duck-security-scan@v2
+        with:
+          polaris_server_url: ${{ secrets.POLARIS_SERVER_URL }}
+          polaris_access_token: ${{ secrets.POLARIS_ACCESS_TOKEN }}
+
+          polaris_application_name: sid-polarisTest
+          polaris_project_name: Webgoat-BD
+          polaris_branch_name: main
+
+          detect_scan: true
+          coverity_scan: true
